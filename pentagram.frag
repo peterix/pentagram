@@ -48,30 +48,27 @@ void main()
     vec2 speed = vec2(0.1, 0.9);
     float shift = 1.327+sin(u_time*2.0)/2.4;
     float alpha = 1.0;
-    float intensity = u_mouse.y / u_resolution * 1.4;
 
     vec2 uv = v_texcoord.xy;
 
-    vec2 po = abs(v_texcoord.xy - vec2(0.5,0.5));
-    vec2 filtpo = po;//abs(vec2(1.0, 1.0) - po);
+    // radial gradient function
+    vec2 pt = vec2( uv.x - 0.5,  uv.y - 0.5);
+    float t = sqrt( dot(pt, pt) );
 
-    //color_out = vec4(filtpo.x, filtpo.y, 0.0, 1.0); return;
+    // magical fudge factor
+    vec2 po = t / fbm(pt- u_time * 0.03);
+    //color_out = vec4(po.x, po.y, 0.0, 1.0); return;
 
     float flame_alpha = clamp(2.0* (1.0 - texture2D(u_tex1,uv).x), 0.0, 1.0);
     float bg_alpha = texture2D(u_tex1,uv).x;
-    
-    // flame + 'cracked earth' texture.
-    // This makes the whole thing a LOT more interesting
-    //vec2 p =  + filtpo;
-    vec2 p = 0.5 * texture2D(u_tex1,uv).xy + filtpo;
+    float intensity = u_mouse.y / u_resolution * 0.7;
 
-    // just the flame
-    //vec2 p = filtpo;
+    // Adding the pentagram here guides the flames
+    vec2 p = 0.5 * texture2D(u_tex1,uv).xy + po * intensity;
 
-    // This adds a 'pulsating wave' effect
+    // modulate result by intensity
     p.y /= intensity;
-    // p.y /= 2.0;
-    // color_out = vec4(p.x, p.y, 0.0, 1.0); return;
+    //color_out = vec4(p.x, p.y, 0.0, 1.0); return;
 
     // Mad plasma noise functions...
     float q = fbm(p - u_time * 0.3+1.0*sin(u_time+0.5)/2.0);
