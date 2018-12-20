@@ -52,16 +52,16 @@ void main()
     vec2 uv = v_texcoord.xy;
 
     // radial gradient function
-    vec2 pt = vec2( uv.x - 0.5,  uv.y - 0.5);
-    float t = sqrt( dot(pt, pt) );
+    vec2 displacement = vec2( uv.x - 0.5,  uv.y - 0.5);
+    float distance = sqrt( dot(displacement, displacement) );
 
     // magical fudge factor
-    vec2 po = t / fbm(pt- u_time * 0.03);
+    vec2 po = vec2(distance / fbm(displacement - u_time * 0.03), fbm(displacement + u_time *0.05 ) - 0.6);
     //color_out = vec4(po.x, po.y, 0.0, 1.0); return;
 
     float flame_alpha = clamp(2.0* (1.0 - texture2D(u_tex1,uv).x), 0.0, 1.0);
     float bg_alpha = texture2D(u_tex1,uv).x;
-    float intensity = u_mouse.y / u_resolution * 0.7;
+    float intensity = u_mouse.y / u_resolution.y * 0.7;
 
     // Adding the pentagram here guides the flames
     vec2 p = 0.5 * texture2D(u_tex1,uv).xy + po * intensity;
